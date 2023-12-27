@@ -1,7 +1,7 @@
 <template>
   <main>
     <LoadingIndicator v-if="isLoading" />
-    <PokeMove v-else-if="moves.length" :move="moves[0]" />
+    <MoveList v-else-if="moves.length" :moves="moves" />
 
     <ErrorNotification
       v-if="hasError"
@@ -18,6 +18,7 @@ import { buildWebStorage } from 'axios-cache-interceptor';
 import PokeMove from './components/PokeMove.vue'
 import LoadingIndicator from './components/LoadingIndicator.vue'
 import ErrorNotification from './components/ErrorNotification.vue'
+import MoveList from './components/MoveList.vue';
 
 const moveApi = new MoveClient({
   cacheOptions: {
@@ -52,6 +53,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@import "./assets/styles/_reset";
+
 html {
   font-family: system-ui, Lato, sans-serif;
   font-size: 16px;
@@ -59,11 +62,6 @@ html {
   background-color: hsl(0, 0%, 98%);
   color: hsl(200, 19%, 18%);
   accent-color: hsl(1, 83%, 63%);
-}
-
-body,
-p {
-  margin: 0;
 }
 
 *,
