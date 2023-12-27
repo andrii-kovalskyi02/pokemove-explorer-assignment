@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { DamageClass } from '../utils/DamageClass';
+import { DamageClass } from '../types/DamageClassEnum';
 import { capitalizeFirstLetter } from '../utils/capitalizeFirstLetter';
 
 const emit = defineEmits(['selected-damage-class'])

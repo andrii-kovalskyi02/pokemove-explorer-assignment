@@ -25,7 +25,7 @@ import LoadingIndicator from './components/LoadingIndicator.vue'
 import ErrorNotification from './components/ErrorNotification.vue'
 import MoveList from './components/MoveList.vue'
 import DamageClassFilter from './components/DamageClassFilter.vue'
-import { DamageClass } from './utils/DamageClass';
+import { DamageClass } from './types/DamageClassEnum';
 
 const moveApi = new MoveClient({
   cacheOptions: {
@@ -64,7 +64,7 @@ function filterByDamageClass(data: Move[], damageClass = DamageClass.ALL) {
   }
 }
 
-const handleSelectedDamageClass = (selectedDamageClass: string) => {
+const handleSelectedDamageClass = (selectedDamageClass: DamageClass) => {
   filterByDamageClass(moves.value, selectedDamageClass)
 }
 

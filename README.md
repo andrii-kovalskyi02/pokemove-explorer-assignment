@@ -14,6 +14,10 @@ To enhance the development experience, it is recommended to use the following se
 
 For improved performance, consider enabling [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) in Volar.
 
+## Prerequisites
+
+For the best experience, it is recommended to fork this repository with **Node.js version 18+**, as the application relies on certain features that are available from Node.js 18+.
+
 ## Getting Started
 
 To run the app on your local machine and explore it, follow these steps:
@@ -26,8 +30,5 @@ To run the app on your local machine and explore it, follow these steps:
 
 4. **Explore the App**: Open your web browser and visit http://localhost:5173 to begin exploring and using the PokeMove Explorer.
 
-## Prerequisites
-
-For the best experience, it is recommended to fork this repository with **Node.js version 18+**, as the application relies on certain features that are available from Node.js 18+.
 
 Now, you're ready to explore!
