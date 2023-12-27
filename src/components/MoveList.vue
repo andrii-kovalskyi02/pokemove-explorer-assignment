@@ -1,5 +1,5 @@
 <template>
-    <ul class="moveList" role="list">
+    <TransitionGroup name="list" tag="ul" class="moveList" role="list">
       <li
         v-for="move in moves"
         :key="move.id"
@@ -11,7 +11,7 @@
         </div>
         <BaseDivider aria-hidden="true" />
       </li>
-    </ul>
+    </TransitionGroup>
 </template>
 
 <script setup lang="ts">
@@ -39,5 +39,16 @@ defineProps<{
   &__move-wrapper {
     padding: 0.5rem 0;
   }
+}
+
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>
