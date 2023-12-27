@@ -1,46 +1,33 @@
-# pokemove-explorer-assignment
+# PokeMove Explorer
 
-This template should help get you started developing with Vue 3 in Vite.
+PokeMove Explorer is a simple Vue 3 application designed to provide users with information about different moves in the Pokémon games using data from the [PokéAPI](https://pokeapi.co/). The app serves as an effective tool for users who may know the name of a move but seek details such as its type.
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+To enhance the development experience, it is recommended to use the following setup:
+
+- [Visual Studio Code (VSCode)](https://code.visualstudio.com/)
+- [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (disable Vetur)
+- [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin)
 
 ## Type Support for `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+For improved performance, consider enabling [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) in Volar.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+## Getting Started
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+To run the app on your local machine and explore it, follow these steps:
 
-## Customize configuration
+1. **Clone the Repository**: Click the "Fork" button at the top-right of this page to create your copy of the repository. Then, clone your forked repository to your local machine.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+2. **Install Dependencies**: Navigate into the project directory using the terminal and run `npm install` to install the required dependencies.
 
-## Project Setup
+3. **Start the App**: After installing the dependencies, start the app with `npm run dev`.
 
-```sh
-npm install
-```
+4. **Explore the App**: Open your web browser and visit http://localhost:5173 to begin exploring and using the PokeMove Explorer.
 
-### Compile and Hot-Reload for Development
+## Prerequisites
 
-```sh
-npm run dev
-```
+For the best experience, it is recommended to fork this repository with **Node.js version 18+**, as the application relies on certain features that are available from Node.js 18+.
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+Now, you're ready to explore!
