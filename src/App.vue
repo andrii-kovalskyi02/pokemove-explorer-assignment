@@ -1,24 +1,31 @@
 <template>
   <main>
-    <LoadingIndicator v-if="isLoading" />
-    <MoveList v-else-if="moves.length" :moves="moves" />
+    <div class="container">
+      <div v-if="!hasError" class="filter-wrapper">
+        <DamageClassFilter @selected-damage-class="handleSelectedDamageClass"/>
+      </div>
 
-    <ErrorNotification
-      v-if="hasError"
-      errorMessage="Oops! Something went wrong. Please try again later."
-    />
+      <LoadingIndicator v-if="isLoading" />
+      <MoveList v-else-if="filteredMoves.length" :moves="filteredMoves" />
+
+      <ErrorNotification
+        v-if="hasError"
+        errorMessage="Oops! Something went wrong. Please try again later."
+      />
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
+import axios from 'axios'
 import { onMounted, ref } from 'vue'
-import { Move, MoveClient } from 'pokenode-ts';
-import { buildWebStorage } from 'axios-cache-interceptor';
-import PokeMove from './components/PokeMove.vue'
+import { Move, MoveClient } from 'pokenode-ts'
+import { buildWebStorage } from 'axios-cache-interceptor'
 import LoadingIndicator from './components/LoadingIndicator.vue'
 import ErrorNotification from './components/ErrorNotification.vue'
-import MoveList from './components/MoveList.vue';
+import MoveList from './components/MoveList.vue'
+import DamageClassFilter from './components/DamageClassFilter.vue'
+import { DamageClass } from './utils/DamageClass';
 
 const moveApi = new MoveClient({
   cacheOptions: {
@@ -26,10 +33,11 @@ const moveApi = new MoveClient({
   }
 })
 const moves = ref<Move[]>([])
-let isLoading = ref(false);
-let hasError = ref(false);
+const filteredMoves = ref<Move[]>([])
+let isLoading = ref(false)
+let hasError = ref(false)
 
-const fetchData = async () => {
+const fetchMoves = async () => {
   try {
     isLoading.value = true
     const response = await moveApi.listMoves(undefined, 919)
@@ -39,6 +47,7 @@ const fetchData = async () => {
       movesData.map(async ({ url }) => (await axios.get(url)).data)
     )
 
+    filteredMoves.value = movesDetails
     moves.value = movesDetails;
   } catch {
     hasError.value = true
@@ -47,8 +56,20 @@ const fetchData = async () => {
   }
 }
 
+function filterByDamageClass(data: Move[], damageClass = DamageClass.ALL) {
+  if (damageClass === DamageClass.ALL) {
+    filteredMoves.value = data
+  } else {
+    filteredMoves.value = data.filter((move: Move) => move.damage_class.name === damageClass)
+  }
+}
+
+const handleSelectedDamageClass = (selectedDamageClass: string) => {
+  filterByDamageClass(moves.value, selectedDamageClass)
+}
+
 onMounted(() => {
-  fetchData()
+  fetchMoves() 
 })
 </script>
 
@@ -68,5 +89,13 @@ html {
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+.container {
+  padding: 2rem;
+}
+
+.filter-wrapper {
+  margin-bottom: 1rem;
 }
 </style>
