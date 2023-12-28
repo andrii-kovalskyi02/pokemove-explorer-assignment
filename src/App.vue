@@ -6,7 +6,7 @@
       </div>
 
       <LoadingIndicator v-if="isLoading" />
-      <MoveList v-else-if="filteredMoves.length" :moves="filteredMoves" />
+      <MoveList v-else :moves="filteredMoves" @ref-changed="handleRefChanged"/>
 
       <ErrorNotification
         v-if="hasError"
@@ -25,30 +25,55 @@ import LoadingIndicator from './components/LoadingIndicator.vue'
 import ErrorNotification from './components/ErrorNotification.vue'
 import MoveList from './components/MoveList.vue'
 import DamageClassFilter from './components/DamageClassFilter.vue'
-import { DamageClass } from './types/DamageClassEnum';
+import { DamageClass } from './types/DamageClassEnum'
+import { useInfiniteScroll } from '@vueuse/core'
 
 const moveApi = new MoveClient({
   cacheOptions: {
     storage: buildWebStorage(localStorage, 'axios-cache:')
   }
 })
+const movesData = ref([])
 const moves = ref<Move[]>([])
 const filteredMoves = ref<Move[]>([])
+const scrollContainer = ref<HTMLElement | null>(null)
 let isLoading = ref(false)
 let hasError = ref(false)
+let movesToShow = ref(10)
+
+useInfiniteScroll(
+  scrollContainer,
+  async () => {
+    await getMovesOnScroll()
+  },
+  { distance: 10 }
+)
+
+const handleRefChanged = (ref: HTMLElement | null) => {
+  scrollContainer.value = ref
+}
+
+const getMovesOnScroll = async () => {
+  if (movesToShow.value > 925) {
+    return
+  }
+
+  const slicedMovesData = movesData.value.slice(moves.value.length, movesToShow.value + 1)
+  
+  const movesDetails = await Promise.all(
+    slicedMovesData.map(async ({ url }) => (await axios.get(url)).data)
+  )
+
+  moves.value.push(...movesDetails)
+  filteredMoves.value.push(...movesDetails)
+  movesToShow.value += 10
+}
 
 const fetchMoves = async () => {
   try {
     isLoading.value = true
     const response = await moveApi.listMoves(undefined, 919)
-    const movesData = response.results;
-
-    const movesDetails = await Promise.all(
-      movesData.map(async ({ url }) => (await axios.get(url)).data)
-    )
-
-    filteredMoves.value = movesDetails
-    moves.value = movesDetails;
+    movesData.value = response.results
   } catch {
     hasError.value = true
   } finally {
@@ -56,7 +81,11 @@ const fetchMoves = async () => {
   }
 }
 
-function filterByDamageClass(data: Move[], damageClass = DamageClass.ALL) {
+const handleSelectedDamageClass = (selectedDamageClass: DamageClass) => {
+  filterByDamageClass(moves.value, selectedDamageClass)
+}
+
+const filterByDamageClass = (data: Move[], damageClass = DamageClass.ALL) => {
   if (damageClass === DamageClass.ALL) {
     filteredMoves.value = data
   } else {
@@ -64,12 +93,8 @@ function filterByDamageClass(data: Move[], damageClass = DamageClass.ALL) {
   }
 }
 
-const handleSelectedDamageClass = (selectedDamageClass: DamageClass) => {
-  filterByDamageClass(moves.value, selectedDamageClass)
-}
-
 onMounted(() => {
-  fetchMoves() 
+  fetchMoves()
 })
 </script>
 
