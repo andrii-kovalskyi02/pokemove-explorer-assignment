@@ -1,15 +1,23 @@
 <template>
   <main>
     <div class="container">
-      <div v-if="!hasError" class="filter-wrapper">
-        <DamageClassFilter @selected-damage-class="handleSelectedDamageClass"/>
-      </div>
+      <template v-if="!hasError">
+        <div class="wrapper">
+          <div class="filter-wrapper">
+            <DamageClassFilter @selected-damage-class="handleSelectedDamageClass"/>
+          </div>
 
-      <LoadingIndicator v-if="isLoading" />
-      <MoveList v-else :moves="filteredMoves" @ref-changed="handleRefChanged"/>
+          <MoveList v-if="filteredMoves.length" :moves="filteredMoves" />
+        </div>
+
+        <LoadingIndicator v-if="isLoading" />
+        <CustomButton v-else customClass="load-more" @click="fetchMoves">
+          Load More Moves
+        </CustomButton>
+      </template>
 
       <ErrorNotification
-        v-if="hasError"
+        v-else
         errorMessage="Oops! Something went wrong. Please try again later."
       />
     </div>
@@ -23,57 +31,46 @@ import { Move, MoveClient } from 'pokenode-ts'
 import { buildWebStorage } from 'axios-cache-interceptor'
 import LoadingIndicator from './components/LoadingIndicator.vue'
 import ErrorNotification from './components/ErrorNotification.vue'
+import CustomButton from './components/CustomButton.vue'
 import MoveList from './components/MoveList.vue'
 import DamageClassFilter from './components/DamageClassFilter.vue'
 import { DamageClass } from './types/DamageClassEnum'
-import { useInfiniteScroll } from '@vueuse/core'
 
 const moveApi = new MoveClient({
   cacheOptions: {
     storage: buildWebStorage(localStorage, 'axios-cache:')
   }
 })
-const movesData = ref([])
 const moves = ref<Move[]>([])
 const filteredMoves = ref<Move[]>([])
-const scrollContainer = ref<HTMLElement | null>(null)
-let isLoading = ref(false)
-let hasError = ref(false)
-let movesToShow = ref(10)
+const selectedDamageClass = ref(DamageClass.ALL)
+const isLoading = ref(false)
+const hasError = ref(false)
+const movesDataLimit = ref(919)
+const firstMoveIndexToGet = ref(0)
+const limitOfMovesPerRequest = ref(20)
 
-useInfiniteScroll(
-  scrollContainer,
-  async () => {
-    await getMovesOnScroll()
-  },
-  { distance: 10 }
-)
-
-const handleRefChanged = (ref: HTMLElement | null) => {
-  scrollContainer.value = ref
-}
-
-const getMovesOnScroll = async () => {
-  if (movesToShow.value > 925) {
+const fetchMoves = async () => {
+  if (moves.value.length >= movesDataLimit.value) {
     return
   }
 
-  const slicedMovesData = movesData.value.slice(moves.value.length, movesToShow.value + 1)
-  
-  const movesDetails = await Promise.all(
-    slicedMovesData.map(async ({ url }) => (await axios.get(url)).data)
-  )
-
-  moves.value.push(...movesDetails)
-  filteredMoves.value.push(...movesDetails)
-  movesToShow.value += 10
-}
-
-const fetchMoves = async () => {
   try {
     isLoading.value = true
-    const response = await moveApi.listMoves(undefined, 919)
-    movesData.value = response.results
+    const response = await moveApi.listMoves(
+      firstMoveIndexToGet.value,
+      limitOfMovesPerRequest.value
+    )
+    const movesData = response.results
+
+    const movesDetails = await Promise.all(
+      movesData.map(async ({ url }) => (await axios.get(url)).data)
+    )
+    
+    firstMoveIndexToGet.value += limitOfMovesPerRequest.value
+
+    moves.value.push(...movesDetails)
+    filterByDamageClass(movesDetails, selectedDamageClass.value, true)
   } catch {
     hasError.value = true
   } finally {
@@ -81,16 +78,25 @@ const fetchMoves = async () => {
   }
 }
 
-const handleSelectedDamageClass = (selectedDamageClass: DamageClass) => {
-  filterByDamageClass(moves.value, selectedDamageClass)
+const filterByDamageClass = (
+  data: Move[],
+  damageClass = DamageClass.ALL,
+  shouldModifyPart: boolean = false
+) => {
+  if (damageClass === DamageClass.ALL) {
+    filteredMoves.value = [...moves.value]
+  } else {
+    const filtered = data.filter((move: Move) => move.damage_class.name === damageClass)
+
+    shouldModifyPart
+      ? filteredMoves.value.push(...filtered)
+      : filteredMoves.value = filtered
+  }
 }
 
-const filterByDamageClass = (data: Move[], damageClass = DamageClass.ALL) => {
-  if (damageClass === DamageClass.ALL) {
-    filteredMoves.value = data
-  } else {
-    filteredMoves.value = data.filter((move: Move) => move.damage_class.name === damageClass)
-  }
+const handleSelectedDamageClass = (damageClass: DamageClass) => {
+  selectedDamageClass.value = damageClass
+  filterByDamageClass(moves.value, damageClass)
 }
 
 onMounted(() => {
@@ -102,12 +108,12 @@ onMounted(() => {
 @import "./assets/styles/_reset";
 
 html {
-  font-family: system-ui, Lato, sans-serif;
+  font-family: $font-default;
   font-size: 16px;
   line-height: 1.5;
-  background-color: hsl(0, 0%, 98%);
-  color: hsl(200, 19%, 18%);
-  accent-color: hsl(1, 83%, 63%);
+  background-color: $main-background-color;
+  color: $font-color;
+  accent-color: $accent-color;
 }
 
 *,
@@ -117,6 +123,11 @@ html {
 }
 
 .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
   padding: 2rem;
 }
 

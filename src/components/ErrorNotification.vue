@@ -16,8 +16,8 @@ defineProps<{
   width: 40%;
   margin: 0.625rem auto;
   padding: 0.625rem;
-  border: 1px solid #ff0000;
-  color: #ff0000;
+  border: 1px solid $error;
+  color: $error;
   text-align: center;
 }
 </style>

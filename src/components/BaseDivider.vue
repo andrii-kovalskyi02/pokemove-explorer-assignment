@@ -6,6 +6,6 @@
 .divider {
   height: 1px;
   width: 95%;
-  background-color: hsl(0, 0%, 86%);
+  background-color: $light-grey;
 }
 </style>
