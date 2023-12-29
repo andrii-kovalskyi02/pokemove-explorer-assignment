@@ -11,7 +11,7 @@
         </div>
 
         <LoadingIndicator v-if="isLoading" />
-        <CustomButton v-else customClass="load-more" @click="fetchMoves">
+        <CustomButton v-else-if="shouldShowButton" customClass="load-more" @click="fetchMoves">
           Load More Moves
         </CustomButton>
       </template>
@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Move, MoveClient } from 'pokenode-ts'
 import { buildWebStorage } from 'axios-cache-interceptor'
 import LoadingIndicator from './components/LoadingIndicator.vue'
@@ -50,11 +50,9 @@ const movesDataLimit = ref(919)
 const firstMoveIndexToGet = ref(0)
 const limitOfMovesPerRequest = ref(20)
 
-const fetchMoves = async () => {
-  if (moves.value.length >= movesDataLimit.value) {
-    return
-  }
+const shouldShowButton = computed(() => moves.value.length <= movesDataLimit.value)
 
+const fetchMoves = async () => {
   try {
     isLoading.value = true
     const response = await moveApi.listMoves(
