@@ -60,15 +60,20 @@ const fetchMoves = async () => {
       limitOfMovesPerRequest.value
     )
     const movesData = response.results
-
+    
     const movesDetails = await Promise.all(
       movesData.map(async ({ url }) => (await axios.get(url)).data)
     )
     
     firstMoveIndexToGet.value += limitOfMovesPerRequest.value
-
-    moves.value.push(...movesDetails)
-    filterByDamageClass(movesDetails, selectedDamageClass.value, true)
+    
+    const uniqueMovesDetails = movesDetails.filter((move) => {
+      const existingMoveIds = new Set(moves.value.map((m) => m.id))
+      return !existingMoveIds.has(move.id)
+    })
+    
+    moves.value.push(...uniqueMovesDetails)
+    filterByDamageClass(uniqueMovesDetails, selectedDamageClass.value, true)
   } catch {
     hasError.value = true
   } finally {
